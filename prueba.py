@@ -40,14 +40,14 @@ def decode(individual):
     colored_vertices = get_colored_vertices(individual)
     polygonal_image = create_polygonal_image(colored_vertices)
     global idx
-    if idx % 500 == 0:
-        polygonal_image.save(f'./test_images/ind-{idx}.png')
+    if idx % 2000 == 0:
+        polygonal_image.save(f'./test_images/{idx}.png')
     idx += 1
     return polygonal_image
 #DECODE -->
 
-image = Image.open("img/verde.png")
-original_image = image.convert("RGB").resize((255,255))
+image = Image.open("img/black_inverted_triangle.jpeg")
+original_image = image.convert("RGB").resize((25,25))
 original_image.show()
 
 def get_fitness(decoded_individual):
