@@ -16,14 +16,14 @@ class AE:
         self.deap_configurer.register_population()
         self.deap_configurer.register_operators(self.image_processor.evalDelaunay)
         self.deap_configurer.register_stats()
-        self.deap_configurer.register_parallelism()
+        #self.deap_configurer.register_parallelism()
         
     def run(self):
         self.buildImageModule()
         self.buildDeapModule()
 
         #algo
-        self.deap_configurer.run_algorithm()
+        self.deap_configurer.run_algorithm(logs=True)
 
         return
 
