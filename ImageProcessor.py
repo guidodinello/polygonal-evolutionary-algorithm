@@ -75,7 +75,7 @@ class ImageProcessor():
         
         return image
 
-    def read_image(self, verbose=True, edge_detection=False, color_palette: int=0, denoise=True):
+    def read_image(self, verbose=False, edge_detection=False, color_palette: int=0, denoise=True):
         image = Image.open(self.img_in_dir).convert("RGB")
         image = self.__tune_image(image, color_palette, denoise, edge_detection)
         self.width, self.height = image.size
