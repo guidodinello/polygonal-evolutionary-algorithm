@@ -6,13 +6,13 @@ class EA():
     def __init__(self, image_processor: ImageProcessor):
         self.image_processor = image_processor
 
-    def load_image(self):
-        self.image_processor.read_image()
+    def load_image(self, verbose=False, show=False):
+        self.image_processor.read_image(verbose=verbose, show=show)
     
     def init_coordinates(self, max_x, max_y, n, edges, edge_rate=0.5):
         genotype = []
         for _ in range(0,n,2):
-            if random.random() < edge_rate:
+            if edges and random.random() < edge_rate:
                 edge = random.choice(edges)
                 genotype.extend(edge)
             else:
@@ -50,10 +50,10 @@ class EA():
         fit = self.get_fitness(decoded_individual)
         return fit,
 
-    def mutGaussianCoordinate(self, individual, mu_x=0, mu_y=0, sigma_x=50, sigma_y=50, indpb=0.2):
+    def mutGaussianCoordinate(self, individual, sigma_x, sigma_y, indpb=0.2):
         size = len(individual)
         for i in range(0,size,2):
             if random.random() < indpb:
-                individual[i] += random.gauss(mu_x, sigma_x)
-                individual[i+1] += random.gauss(mu_y, sigma_y)
+                individual[i] += random.gauss(0, sigma_x)
+                individual[i+1] += random.gauss(0, sigma_y)
         return individual,
