@@ -4,6 +4,7 @@ from EA import EA
 from EAController import EAController
 from DeapConfig import DeapConfig
 from ImageProcessor import ImageProcessor
+from Statistics import Statistics
 from threading import Thread
 import random
 
@@ -98,5 +99,6 @@ if __name__ == "__main__":
         handle_inputs(algorithm_thread, eac)
         algorithm_thread.join()
     else:
-        eac.run()
+        #eac.run()
+        Statistics(eac).parametric_evaluation()
     

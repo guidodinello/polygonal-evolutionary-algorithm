@@ -24,7 +24,7 @@ class EAController:
         
     def run(self, show_res=True, logs=True):
         is_parallel = bool(self.deap_configurer.cpu_count > 1)
-        population, log_info = self.deap_configurer.run_algorithm(parallel=is_parallel)
+        population, log_info, hall_of_fame, best_fitnesses = self.deap_configurer.run_algorithm(parallel=is_parallel)
 
         # Save files
         img = self.evolutionary_algorithm.decode(population[0])
@@ -33,7 +33,11 @@ class EAController:
         if show_res:
             img.show("Result")
         if logs:
-            self.deap_configurer.save_logs(log_info)
+            self.deap_configurer.save_logs(
+                log_info, 
+                seed=self.deap_configurer.seed,
+                file_name=self.evolutionary_algorithm.image_processor.input_name,
+                hall_of_fame=hall_of_fame)
         return
 
     def exit(self):

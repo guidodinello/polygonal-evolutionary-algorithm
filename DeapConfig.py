@@ -2,6 +2,7 @@ from deap import base
 from deap import creator
 from deap import tools
 from deap import algorithms
+from deap.tools import HallOfFame
 
 import random
 import pandas
@@ -77,27 +78,30 @@ class DeapConfig:
         self.toolbox.register("map", self.process_pool.map)
         return
     
-    def save_logs(self, logbook):
+    def save_logs(self, logbook, seed : int, file_name="default", hall_of_fame=None):
         df_log = pandas.DataFrame(logbook)
-        df_log.to_csv('./logs/last.csv', index=False) #TODO: PARAMETRIZAR
+        df_log.to_csv(f'./logs/{file_name}_{seed}.csv', index=False) #TODO: PARAMETRIZAR
+        if hall_of_fame:
+            df_hall_of_fame = pandas.DataFrame(hall_of_fame)
+            df_hall_of_fame.to_csv(f'./logs/best_individual_{file_name}_{seed}.csv', index=False)
     
     def run_algorithm(self, parallel=True):
         if parallel:
             with self.process_pool:
-                population, logbook = self.__run_algorithm()
+                population, logbook, hof, best_fitnesses = self.__run_algorithm()
         else:
-            population, logbook = self.__run_algorithm()
-        return population, logbook
+            population, logbook, hof, best_fitnesses = self.__run_algorithm()
+        return population, logbook, hof, best_fitnesses
 
     def __run_algorithm(self):
             pop = self.toolbox.population(n=self.MU)
-            pop, logbook = self.__eaMuPlusLambda(pop, self.toolbox, self.MU, self.LAMBDA, self.CXPB, self.MUTPB, self.NGEN, self.stats, verbose=True)
-            return pop, logbook
+            pop, logbook, hof, best_fitnesses = self.__eaMuPlusLambda(pop, self.toolbox, self.MU, self.LAMBDA, self.CXPB, self.MUTPB, self.NGEN, self.stats, verbose=True)
+            return pop, logbook, hof, best_fitnesses
 
     def force_stop(self):
         self.forced_stop = True
 
-    def __stop_condition(self, gen: int, ngen: int, fitnesses: list[int]):
+    def __stop_condition(self, gen: int, ngen: int, fitnesses: "list[int]"):
         #last generation, or fitness not changing for 0.2*NGEN generations, or forced stop from main thread
         INVARIANCE_THRESHOLD = 0.2
         GEN_INV_THRESHOLD = int(INVARIANCE_THRESHOLD * ngen)
@@ -112,7 +116,7 @@ class DeapConfig:
 
     def __eaMuPlusLambda(self, population: list, toolbox: base.Toolbox, 
                          mu: int, lambda_: int, cxpb: float, mutpb: float, ngen: int,
-                         stats: tools.Statistics = None, halloffame: tools.HallOfFame = None, verbose=True):
+                         stats: tools.Statistics = None, halloffame: tools.HallOfFame = HallOfFame(1), verbose=True):
 
         logbook = tools.Logbook()
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
@@ -149,4 +153,4 @@ class DeapConfig:
             best_fitnesses.append(record['min'])
             gen += 1
 
-        return population, logbook
+        return population, logbook, halloffame, best_fitnesses
