@@ -22,7 +22,7 @@ class EAController:
         if self.deap_configurer.cpu_count > 1:
             self.deap_configurer.register_parallelism() 
         
-    def run(self, show_res=True, logs=True):
+    def run(self, show_res=True, logs=True, seed=0):
         is_parallel = bool(self.deap_configurer.cpu_count > 1)
         population, log_info, hall_of_fame, best_fitnesses = self.deap_configurer.run_algorithm(parallel=is_parallel)
 
@@ -35,10 +35,10 @@ class EAController:
         if logs:
             self.deap_configurer.save_logs(
                 log_info, 
-                seed=self.deap_configurer.seed,
+                seed=seed,
                 file_name=self.evolutionary_algorithm.image_processor.input_name,
                 hall_of_fame=hall_of_fame)
-        return
+        return best_fitnesses
 
     def exit(self):
         self.deap_configurer.force_stop()
