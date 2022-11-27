@@ -4,6 +4,7 @@ from EA import EA
 from EAController import EAController
 from DeapConfig import DeapConfig
 from ImageProcessor import ImageProcessor
+from Statistics import Statistics
 
 def get_arguments() -> dict:
     parser = argparse.ArgumentParser()
@@ -74,4 +75,8 @@ if __name__ == "__main__":
     eac = EAController(ea, dc)
     eac.build_ea_module()
     eac.build_deap_module()
-    eac.run()
+    
+    #eac.run()
+    
+    Statistics(eac).parametric_evaluation()
+    #Statistics(eac).algorithmical_speedup()
