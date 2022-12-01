@@ -99,15 +99,11 @@ class DeapConfig:
     def force_stop(self):
         self.forced_stop = True
 
-    def __stop_condition(self, gen: int, ngen: int, fitnesses: "list[int]"):
-        #last generation, or fitness not changing for 0.2*NGEN generations, or forced stop from main thread
-        INVARIANCE_THRESHOLD = 0.2
-        GEN_INV_THRESHOLD = int(INVARIANCE_THRESHOLD * ngen)
-
+    def __stop_condition(self, gen: int, ngen: int):
+        
         conditions = [
             gen >= ngen,
-            GEN_INV_THRESHOLD > 1 and (gen >= GEN_INV_THRESHOLD) and len(set(fitnesses[-GEN_INV_THRESHOLD:])) == 1,
-            self.forced_stop
+            self.forced_stop #force stop from main thread
         ]
 
         return any(conditions)
@@ -134,7 +130,7 @@ class DeapConfig:
 
         gen = 1
         best_fitnesses = [record['min']]
-        while not self.__stop_condition(gen, ngen, best_fitnesses):
+        while not self.__stop_condition(gen, ngen):
             offspring = algorithms.varOr(population, toolbox, lambda_, cxpb, mutpb)
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind, **parallelism_params)
