@@ -262,7 +262,7 @@ class Statistics:
 
     def __build_eac(self, input_name: str, input_dir: str, vertex_count: int):
         dc = DeapConfig()
-        ip = ImageProcessor(input_name=input_name, input_dir=input_dir, vertex_count=vertex_count) #TODO: DESHARDCODEAR
+        ip = ImageProcessor(input_name=input_name, input_dir=input_dir, vertex_count=vertex_count, width=300) #TODO: DESHARDCODEAR
         ea = EA(ip)
         eac = EAController(ea, dc)
         eac.build_ea_module()
@@ -276,9 +276,9 @@ class Statistics:
             time_execution = []
             
             for seed in seeds:
+                print(f"Evaluating seed {seed+1}/{len(seeds)} of config {config}")
                 random.seed(seed)
                 eac.deap_configurer.register_parallelism() # si no salta error de pool not running
-                # TODO : time y codo
 
                 start = time()
                 best_fitnesses = eac.run(show_res=False, logs=False, seed=seed)
@@ -287,14 +287,14 @@ class Statistics:
                 time_execution.append(end - start)
                 best_execution_fitness.append(min(best_fitnesses))
 
-                current_values = [eac.deap_configurer.__dict__[at] for at in attributes]
+            current_values = [eac.deap_configurer.__dict__[at] for at in attributes]
 
-                results.append([
-                    *current_values, seed, min(best_fitnesses),
-                    np.mean(best_execution_fitness), np.std(best_execution_fitness),
-                    np.mean(time_execution),
-                    self.normality_test(best_execution_fitness)
-                ])
+            results.append([
+                *current_values, min(best_fitnesses),
+                np.mean(best_execution_fitness), np.std(best_execution_fitness),
+                np.mean(time_execution),
+                self.normality_test(best_execution_fitness)
+            ])
         
             header_fitness.append(str(current_values))
             best_fitness_config.append(best_execution_fitness)
@@ -312,14 +312,13 @@ class Statistics:
                 current_config[att] = val
                 self.__get_EA_results(eac, seeds, current_config, attributes, results, header_fitness, best_fitness_config)
 
-        columns = [*(attributes.keys()), "seed", "best_historical_fitness", "avg_best_fitness", "std_fitness", "avg_time", "p-value"]
+        columns = [*(attributes.keys()), "best_historical_fitness", "avg_best_fitness", "std_fitness", "avg_time", "p-value"]
         pd.DataFrame(results, columns=columns).to_csv(f"results/informal.csv", index=False)
 
         pd.DataFrame(np.transpose(np.array(best_fitness_config)), columns=header_fitness).to_csv(f"results/best_fitness_execution/best_fit_per_config_informal.csv", index=False)
 
-    def parametric_evaluation2(self, vertex_count: int, attributes: dict, image_path: str, images: list=["ultima_cena.jpg", "fox.jpg", "monalisa.jpg"], seeds: list = [1,2,3,4]):
+    def parametric_evaluation2(self, vertex_count: int, attributes: dict, image_path: str, images: list=["ultima_cena.jpg"], seeds: list = [1,2,3,4]):
         eac = self.__build_eac(images[0], image_path, vertex_count)
-        #TODO: PASAR LISTA DE IMAGENES POR PARAMETRO Y NO UNA SOLA <- ???
         results = []
         header_fitness = []
         best_fitness_config = []
@@ -330,14 +329,14 @@ class Statistics:
             for i, att in enumerate(attributes.keys()):
                 current_config[att] = combination[i]
             self.__get_EA_results(eac, seeds, current_config, attributes, results, 
-                header_fitness, best_fitness_config)
+                                  header_fitness, best_fitness_config)
         
-        header = [*(attributes.keys()), "seed","best_historical_fitness", "avg_best_fitness", "std_fitness", "avg_time", "p-value"]
+        header = [*(attributes.keys()),"best_historical_fitness", "avg_best_fitness", "std_fitness", "avg_time", "p-value"]
         pd.DataFrame(results, columns=header).to_csv(f"results/resultados.csv", index=False)
 
         pd.DataFrame(np.transpose(np.array(best_fitness_config)), columns=header_fitness).to_csv(f"results/best_fitness_execution/best_fit_per_config_parametric.csv", index=False)
                 
-    def greedy_evaluation_2(self, best_config: dict, greedy_config: dict, vertex_count: int, image_path: str, images: list=["ultima_cena.jpg", "fox.jpg", "monalisa.jpg"], seeds: list = [1,2]):
+    def greedy_evaluation_2(self, best_config: dict, greedy_config: dict, vertex_count: int, image_path: str, images: list=["old_man.jpeg", "fox.jpg", "monalisa.jpg"], seeds: list = [1,2]):
         eac = self.__build_eac(images[0], image_path, vertex_count)
         self.__update_config(eac, best_config)
         alt_solver = AltSolver(eac.evolutionary_algorithm)
@@ -494,4 +493,4 @@ class Statistics:
 
 
 
-        pd.DataFrame(np.transpose(np.array(best_fitness_config)), columns=header_fitness).to_csv(f"results/best_fitness_execution/greedy2.csv", index=False)
+        #pd.DataFrame(np.transpose(np.array(best_fitness_config)), columns=header_fitness).to_csv(f"results/best_fitness_execution/greedy2.csv", index=False)
